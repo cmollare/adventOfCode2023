@@ -1,6 +1,7 @@
 pub struct Game {
     pub id: u64,
     pub sets: Vec<Set>,
+    pub power: u64,
 }
 
 pub struct Guess {
@@ -9,6 +10,7 @@ pub struct Guess {
     pub blue: u64,
 }
 
+#[derive(Clone)]
 pub struct Set {
     pub nb_red: u64,
     pub nb_green: u64,

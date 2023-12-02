@@ -12,7 +12,8 @@ fn main() {
     let text = read_to_string("./rsc/input")
     .unwrap();
 
-    day2_part1(text);
+    day2_part1(text.clone());
+    day2_part2(text);
 }
 
 fn day2_part1(s : String) {
@@ -28,7 +29,18 @@ fn day2_part1(s : String) {
     .map(|g| compute_valid_ids(&guess, g))
     .sum();
 
-    println!("result : {}", res);
+    println!("result guess : {}", res);
+}
+
+fn day2_part2(s : String) {
+
+    let res : u64= s.lines()
+    .map(String::from)
+    .map(split_game)
+    .map(|g| g.power)
+    .sum();
+
+    println!("result power : {}", res);
 }
 
 fn compute_valid_ids(guess: &Guess, g: Game) -> u64 {
@@ -46,12 +58,18 @@ fn split_game(s: String) -> Game {
         .map(extract_set)
         .collect();
 
+    let cloned_set = sets.to_vec();
+
+    let max_set = cloned_set.iter().map(|s| s.clone()).reduce(compute_max_set).unwrap();
+    let power = max_set.nb_blue*max_set.nb_red*max_set.nb_green;
+
     let re = Regex::new(r"\d+").unwrap();
     let id = re.captures(game[0]).unwrap()[0].parse::<u64>().unwrap();
 
     return Game {
         id,
-        sets
+        sets,
+        power,
     };
 }
 
@@ -59,10 +77,10 @@ fn extract_set(s: &str) -> Set {
     return s.split(",")
         .map(extract_color)
         .map(convert_to_partial_set)
-        .reduce(create_set).unwrap();
+        .reduce(compute_max_set).unwrap();
 }
 
-fn create_set(s1: Set, s2 : Set) -> Set {
+fn compute_max_set(s1: Set, s2 : Set) -> Set {
     return Set {
         nb_red: if s1.nb_red > s2.nb_red { s1.nb_red } else { s2.nb_red },
         nb_green: if s1.nb_green > s2.nb_green { s1.nb_green } else { s2.nb_green },
