@@ -6,7 +6,8 @@ pub struct Line {
 
 #[derive(Debug)]
 pub struct Symbol {
-    pub position : i64
+    pub position : i64,
+    pub is_gear: bool
 }
 
 #[derive(Debug)]
