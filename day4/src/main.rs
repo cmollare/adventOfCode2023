@@ -11,6 +11,8 @@ fn main() {
     .unwrap();
 
     day4_part1(&text);
+
+    day4_part2(&text);
 }
 
 fn day4_part1(t: &str) {
@@ -20,6 +22,28 @@ fn day4_part1(t: &str) {
         .sum();
 
     println!("result {}", res);
+}
+
+fn day4_part2(t: &str) {
+    let original_res: Vec<_> = t.lines()
+        .map(parse_line)
+        .map(compute_nb_matching_nbs)
+        .collect();
+
+    let mut nb_cards_per_game: Vec<u64> = Vec::new();
+    nb_cards_per_game.resize_with(original_res.len(), || { 1 });
+
+    for i in 0..original_res.len() {
+        let res: usize = original_res[i] as usize;
+        for j in 1..=res {
+            nb_cards_per_game[i+j] += nb_cards_per_game[i];
+        }
+    }
+
+    //println!("orginal res {:?}", original_res);
+    //println!("new res {:?}", nb_cards_per_game);
+
+    println!("res {}", nb_cards_per_game.iter().map(|v| *v).sum::<u64>());
 }
 
 fn parse_line(t: &str) -> Line {
@@ -43,6 +67,13 @@ fn parse_line(t: &str) -> Line {
         win_nbs,
         nbs
     };
+}
+
+fn compute_nb_matching_nbs(l: Line) -> u64 {
+    let res = l.nbs.iter()
+        .filter_map(|n| if l.win_nbs.contains(n) { Some(n) } else { None })
+        .fold(0, |acc, _| acc + 1 );
+    return res;
 }
 
 fn compute_result(l: Line) -> u64 {
