@@ -40,7 +40,13 @@ pub fn day8_part2(t: &str) {
 }
 
 fn computes_paths(path: &Path, graph: &Graph) -> u64 {
-    return compute_steps(path, &graph.map, &graph.starting_nodes);
+
+    let step = 0;
+
+    let res: u64 = graph.starting_nodes.iter().map(|n| compute_first_period(path, &graph.map, n, step)).reduce(|v1, v2| ppcm(v1, v2)).unwrap();
+    println!("res {:?}", res);
+    
+    return 0
 }
 
 fn compute_next_step(path: &Path, graph: &HashMap<String, Node>, current_node: &Node, step: usize) -> Node {
@@ -52,26 +58,37 @@ fn compute_next_step(path: &Path, graph: &HashMap<String, Node>, current_node: &
     return res.clone();
 }
 
-fn compute_steps(path: &Path, graph: &HashMap<String, Node>, nodes: &Vec<Node>) -> u64 {
-    let mut step = 0;
-    let mut current_nodes = nodes.clone();
-    let len = current_nodes.len();
+fn compute_first_period(path: &Path, graph: &HashMap<String, Node>, node: &Node, step: usize) -> u64 {
+    let mut res = step;
+    let mut current_node = node.clone();
 
     loop {
-        current_nodes = current_nodes.iter().map(|n| compute_next_step(path, graph, n, step)).collect();
-        step = step + 1;
-        let res = current_nodes.iter().filter(|n| n.is_ending_node).fold(0, |acc, _| acc + 1);
-        
-        if res > 3 {
-            println!("test {} / {} -> {}", res, len, step);
-        }
-        
-        if res == len { break }
+        current_node = compute_next_step(path, graph, &current_node, res);
+        res = res + 1;
+
+        if current_node.is_ending_node { break }
     }
+    println!("test {}", res);
 
-    println!("steps {}", step);
+    return res as u64;
+}
 
-    return step as u64;
+fn pgcd(a: u64, b: u64) -> u64 {
+    let mut greater = if a > b { a } else { b };
+    let mut lesser = if a > b { b } else { a };
+    let mut rem = 0;
+    loop {
+        let rem = greater%lesser;
+        greater = lesser;
+        lesser = rem;
+
+        if rem == 0 { break }
+    }
+    return greater;
+}
+
+fn ppcm(a: u64, b: u64) -> u64 {
+    return a*b/pgcd(a,b);
 }
 
 fn parse_path(l: &str) -> Path {
